@@ -44,7 +44,7 @@ class Spindownd
          * Updates the device list and spinsdown disks
          * everytime after cycleTime.
          */
-        static void run(bool = false);
+        static void run();
 
         /**
          * Reads the configuration file and configures spindown.
@@ -52,12 +52,10 @@ class Spindownd
         static void readConfig(string const &);
 
     private:
-        static Spindown spindown;
-
-        static string fifoPath
-			,confPath
-			,pidPath;
-
+        static Spindown* spindown;
+        static string fifoPath;
+        static string confPath;
+        static string pidPath;
         static bool daemon;
 
         /**

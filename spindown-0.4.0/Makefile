@@ -1,42 +1,22 @@
-CXX = g++
-LDFLAGS = -O1
-CXXFLAGS = -O1 -c
-
-TARGET =
-
-SRC = src/
-INPARSER = $(SRC)iniparser3.0b/
-SRCDIR = spindown-$(VERSION)
-
 SBINDIR = $(DESTDIR)/sbin
 ETCDIR = $(DESTDIR)/etc
+VERSION = 0.4.0
+OBJS = main.o diskset.o disk.o spindown.o iniparser.o dictionary.o log.o spindownd.o\
+        exceptions.o
+CC = g++
+CFLAGS =-O1
+SRC = src/
+INPARSER = $(SRC)ininiparser3.0b/
+SRCDIR = spindown-$(VERSION)
 
-VERSION = 0.5.0
-OBJS = $(TARGET)main.o $(TARGET)disk.o $(TARGET)spindown.o $(TARGET)iniparser.o\
-		$(TARGET)dictionary.o $(TARGET)log.o $(TARGET)spindownd.o $(TARGET)exceptions.o
-
-all: $(TARGET)spindownd
+all: spindownd
 	@echo "---"
-	@echo "THE CONFIGURATION FILE HAS CHANGED SINCE V0.4.0!!!!"
+	@echo "THE CONFIGURATION FILE HAS CHANGED SINCE V0.2.1!!!!"
 	@echo "Please see the changelog and the example configuration file for more information."
 	@echo "---"
 
-debug:
-	mkdir -p Debug
-	$(MAKE) all TARGET="Debug/" LDFLAGS="$(LDFLAGS) -g" CXXFLAGS="$(CXXFLAGS) -g"
-
-debug-clean:
-	$(MAKE) clean TARGET="Debug/"
-
-release:
-	mkdir -p Release
-	$(MAKE) all TARGET="Release/"
-
-release-clean:
-	$(MAKE) clean TARGET="Release/"
-
 clean:
-	rm -f $(OBJS) $(TARGET)spindownd
+	rm -f $(OBJS) spindownd
 
 install: all
 	install -D -m 755 spindownd $(SBINDIR)/spindownd
@@ -68,7 +48,7 @@ uninstall:
 dist:
 	mkdir -p $(SRCDIR)/src/ininiparser3.0b
 	mkdir -p $(SRCDIR)/gentoo
-	cp $(SRC)general.h $(SRC)main.cpp $(SRC)disk.h\
+	cp $(SRC)general.h $(SRC)main.cpp $(SRC)diskset.h $(SRC)diskset.cpp $(SRC)disk.h\
 		$(SRC)disk.cpp $(SRC)spindown.h $(SRC)spindown.cpp $(SRC)log.h $(SRC)log.cpp\
                 $(SRC)spindownd.h $(SRC)spindownd.cpp $(SRC)exceptions.h $(SRC)exceptions.cpp\
                 $(SRCDIR)/$(SRC)
@@ -79,30 +59,32 @@ dist:
 	tar -czf $(SRCDIR).tar.gz $(SRCDIR)/*
 	rm -d -r -f $(SRCDIR)
 
+spindownd: $(OBJS)
+	g++ $(CFLAGS) -o spindownd $(OBJS)
 
-$(TARGET)spindownd: $(OBJS)
-	$(CXX) $(LDFLAGS) -o $(TARGET)spindownd $(OBJS)
+main.o: $(SRC)main.cpp $(SRC)general.h
+	g++ $(CFLAGS) -c $(SRC)main.cpp
 
-$(TARGET)main.o: $(SRC)main.cpp
-	$(CXX) $(CXXFLAGS) $(SRC)main.cpp -o $(TARGET)main.o
+diskset.o: $(SRC)diskset.cpp $(SRC)diskset.h $(SRC)general.h
+	g++ $(CFLAGS) -c $(SRC)diskset.cpp
 
-$(TARGET)disk.o: $(SRC)disk.cpp $(SRC)disk.h
-	$(CXX) $(CXXFLAGS) $(SRC)disk.cpp -o $(TARGET)disk.o
+disk.o: $(SRC)disk.cpp $(SRC)disk.h $(SRC)general.h
+	g++ $(CFLAGS) -c $(SRC)disk.cpp
 
-$(TARGET)spindown.o: $(SRC)spindown.cpp $(SRC)spindown.h
-	$(CXX) $(CXXFLAGS) $(SRC)spindown.cpp -o $(TARGET)spindown.o
+spindown.o: $(SRC)spindown.cpp $(SRC)spindown.h $(SRC)general.h
+	g++ $(CFLAGS) -c $(SRC)spindown.cpp
 
-$(TARGET)spindownd.o: $(SRC)spindownd.cpp $(SRC)spindownd.h
-	$(CXX) $(CXXFLAGS) $(SRC)spindownd.cpp -o $(TARGET)spindownd.o
+spindownd.o: $(SRC)spindownd.cpp $(SRC)spindownd.h $(SRC)general.h
+	g++ $(CFLAGS) -c $(SRC)spindownd.cpp
 
-$(TARGET)log.o: $(SRC)log.cpp $(SRC)log.h
-	$(CXX) $(CXXFLAGS) $(SRC)log.cpp -o $(TARGET)log.o
+log.o: $(SRC)log.cpp $(SRC)log.h $(SRC)general.h
+	g++ $(CFLAGS) -c $(SRC)log.cpp
 
-$(TARGET)exceptions.o: $(SRC)exceptions.cpp $(SRC)exceptions.h
-	$(CXX) $(CXXFLAGS) $(SRC)exceptions.cpp -o $(TARGET)exceptions.o
+exceptions.o: $(SRC)exceptions.cpp $(SRC)exceptions.h $(SRC)general.h
+	g++ $(CFLAGS) -c $(SRC)exceptions.cpp
 
-$(TARGET)iniparser.o: $(INPARSER)iniparser.c
-	$(CXX) $(CXXFLAGS) $(INPARSER)iniparser.c -o $(TARGET)iniparser.o
+iniparser.o: $(INPARSER)iniparser.c
+	g++ $(CFLAGS) -c $(INPARSER)iniparser.c
 
-$(TARGET)dictionary.o: $(INPARSER)dictionary.c
-	$(CXX) $(CXXFLAGS) $(INPARSER)dictionary.c -o $(TARGET)dictionary.o
+dictionary.o: $(INPARSER)dictionary.c
+	g++ $(CFLAGS) -c $(INPARSER)dictionary.c
