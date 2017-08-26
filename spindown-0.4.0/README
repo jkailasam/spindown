@@ -1,3 +1,6 @@
+In ubuntu, install the pre-requisite
+  # apt-get install make gcc g++ sg3-utils
+
 To make an installation type:
   # make
   # make install
